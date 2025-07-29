@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATE Monitor Interactive Map</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-microchip"></i> ATE Monitor Interactive Map</h1>
+            
+            <!-- Panel Tabs -->
+            <div class="panel-tabs">
+                <button class="panel-tab" data-panel="panel2">
+                    <i class="fas fa-microchip"></i> Inverter Vision Station 1
+                </button>
+                <button class="panel-tab" data-panel="panel3">
+                    <i class="fas fa-microchip"></i> Inverter Vision Station 2
+                </button>
+                <button class="panel-tab" data-panel="panel4">
+                    <i class="fas fa-microchip"></i> Inverter Vision Station 3
+                </button>
+                <button class="panel-tab" data-panel="panel5">
+                    <i class="fas fa-microchip"></i> Inverter Vision Station 4
+                </button>
+                <button class="panel-tab active" data-panel="panel1">
+                    <i class="fas fa-microchip"></i> Integration
+                </button>
+                <button class="panel-tab settings-tab" id="settingsBtn" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+            
+            <div class="header-controls">
+                <div class="search-container">
+                    <div class="search-mode-selector">
+                        <select id="searchMode" title="Search Mode">
+                            <option value="all">All Fields</option>
+                            <option value="mapId">Map ID</option>
+                            <option value="monitorName">Monitor Name</option>
+                            <option value="tcoStatus">TCO Status</option>
+                            <option value="comments">Comments</option>
+                            <option value="creationDate">Creation Date</option>
+                            <option value="type">RFD Type</option>
+                        </select>
+                    </div>
+                    <div id="searchFieldContainer" style="display:inline-block;width:auto;"></div>
+                    <input type="text" id="searchInput" placeholder="Search RFDs, monitor names, or any field...">
+                    <button id="searchBtn" title="Search"><i class="fas fa-search"></i></button>
+                </div>
+                <button id="themeToggleBtn" class="btn-secondary" title="Toggle Dark/Light Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="fullscreenBtn" class="btn-secondary" title="Toggle Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button id="addRfdBtn" class="btn-primary">
+                    <i class="fas fa-plus"></i> Add RFD
+                </button>
+                <button id="copyRfdBtn" class="btn-secondary" title="Copy Selected RFD (Ctrl+C)">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+                <button id="pasteRfdBtn" class="btn-secondary" title="Paste RFD (Ctrl+V)">
+                    <i class="fas fa-paste"></i> Paste
+                </button>
+                <button id="lockMapBtn" class="btn-secondary">
+                    <i class="fas fa-lock"></i> Lock Map
+                </button>
+                <button id="resetDataBtn" class="btn-secondary">
+                    <i class="fas fa-undo"></i> Reset Data
+                </button>
+                <button id="exportDataBtn" class="btn-secondary">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+                <button id="exportImageBtn" class="btn-secondary">
+                    <i class="fas fa-image"></i> Export Image
+                </button>
+                <button id="importDataBtn" class="btn-secondary">
+                    <i class="fas fa-upload"></i> Import
+                </button>
+                <button id="updateRunsBtn" class="btn-secondary" title="Update MLflow Runs CSV">
+                    <i class="fas fa-table"></i> Update Runs
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Map Container -->
+            <div class="map-container">
+                <div class="map-wrapper">
+                    <div id="imageContainer" class="image-container">
+                        <img id="electricalPanel" src="electrical-panel-real.jpg" alt="Electrical Panel" class="panel-image">
+                        <div id="rfdContainer" class="rfd-overlay"></div>
+                    </div>
+                    <!-- Performance Legend -->
+                    <div id="performanceLegend" class="performance-legend" style="display:none;">🟢 OK 🔴 Action</div>
+                    <!-- Performance Summary -->
+                    <div id="performanceSummary" class="performance-summary" style="display:none;"></div>
+                </div>
+                
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <button id="zoomInBtn" class="control-btn" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                    <button id="zoomOutBtn" class="control-btn" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+                    <button id="resetZoomBtn" class="control-btn" title="Reset Zoom"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h3>RFD Details</h3>
+                    <button id="closeSidebarBtn" class="close-btn" title="Close"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="rfdDetails" class="rfd-details">
+                    <p class="no-selection">Select an RFD to view details</p>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Add/Edit RFD Modal -->
+    <div id="rfdModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New RFD</h2>
+                <button id="closeModalBtn" class="close-btn" title="Close"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="rfdForm" class="rfd-form">
+                <div class="form-group">
+                    <label for="mapId">Map ID *</label>
+                    <input type="text" id="mapId" name="mapId" required>
+                    <small>This will be the unique identifier for the RFD</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="monitorName">Monitor Name *</label>
+                    <input type="text" id="monitorName" name="monitorName" required>
+                    <small>This will be converted to a hyperlink</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="creationDate">Creation Date</label>
+                    <input type="date" id="creationDate" name="creationDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tcoStatus">TCO Status</label>
+                    <select id="tcoStatus" name="tcoStatus">
+                        <option value="">Select Status</option>
+                        <option value="Implemented">Implemented</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Not Requested">Not Requested</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comments">Comments</label>
+                    <textarea id="comments" name="comments" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rfdType">RFD Type</label>
+                    <select id="rfdType" name="rfdType">
+                        <option value="rectangular">Rectangular</option>
+                        <option value="circular">Circular</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="monitorType">Monitor Type</label>
+                    <select id="monitorType" name="monitorType">
+                        <option value="Normal - Error validation" selected>Normal - Error validation</option>
+                        <option value="DQM - Skip Validation">DQM - Skip Validation</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="currentThreshold">Current Threshold</label>
+                    <input type="number" id="currentThreshold" name="currentThreshold" step="0.01" value="0.7">
+                    <small>Default threshold value for performance (0.7)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="shapeColor">Shape Color</label>
+                    <input type="color" id="shapeColor" name="shapeColor" value="#3498db">
+                    <small>Choose the color for the RFD shape</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="textColor">Map ID Color</label>
+                    <input type="color" id="textColor" name="textColor" value="#2c3e50">
+                    <small>Choose the color for the RFD ID text</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save RFD</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results Modal -->
+    <div id="searchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-search"></i> Search Results</h2>
+                <button id="closeSearchModalBtn" class="close-btn" title="Close"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="searchResults" class="search-results">
+                <!-- Search results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-cog"></i> Settings</h2>
+                <span class="close" id="closeSettingsBtn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3><i class="fas fa-plus-circle"></i> Add New Station</h3>
+                    <div class="form-group">
+                        <label for="newStationName">Station Name:</label>
+                        <input type="text" id="newStationName" placeholder="Enter station name">
+                    </div>
+                    <button class="btn btn-primary" id="addStationBtn">
+                        <i class="fas fa-plus"></i> Add Station
+                    </button>
+                </div>
+
+                <div class="settings-section">
+                    <h3><i class="fas fa-info-circle"></i> Station Information</h3>
+                    <p class="settings-info">
+                        To add or update station images, manually rename your image files to match the station names and place them in the program directory.
+                    </p>
+                    <div class="stations-list" id="stationsList">
+                        <!-- Stations will be populated here -->
+                    </div>
+                    <button class="btn btn-secondary" id="resetPanelConfigBtn">
+                        <i class="fas fa-refresh"></i> Reset Panel Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header">
+                <h2>Login</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <p id="loginError" style="display:none;color:#e74c3c;font-size:0.9em;"></p>
+                <div class="form-actions">
+                    <button id="loginSubmitBtn" class="btn-primary">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Management Modal (Admin Only) -->
+    <div id="userModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:600px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-users-cog"></i> User Management</h2>
+                <button id="closeUserModalBtn" class="close-btn" title="Close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <table class="user-table" style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+                    <thead>
+                        <tr><th>Username</th><th>Admin</th><th>Permissions</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="usersTable"></tbody>
+                </table>
+
+                <h3>Add / Edit User</h3>
+                <div class="form-group">
+                    <label for="editUsername">Username</label>
+                    <input type="text" id="editUsername">
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">Password</label>
+                    <input type="password" id="editPassword" placeholder="Leave blank to keep unchanged">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="editIsAdmin"> <label for="editIsAdmin">Is Admin</label>
+                </div>
+                <div class="form-group">
+                    <label>Permissions:</label><br>
+                    <input type="checkbox" id="permEdit"> <label for="permEdit">Edit RFDs</label><br>
+                    <input type="checkbox" id="permUpload"> <label for="permUpload">Upload Runs</label><br>
+                    <input type="checkbox" id="permManage"> <label for="permManage">Manage Users</label>
+                </div>
+                <div class="form-actions">
+                    <button id="saveUserBtn" class="btn-primary" title="Save User">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+      window.supabase = supabase.createClient(
+        'https://pfpqorlhvwpuwssyjhtj.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmcHFvcmxodndwdXdzc3lqaHRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwNzc0MzIsImV4cCI6MjA2ODY1MzQzMn0.ozG_qxC1ly9EXOvKfpx8oE745yGUni1ur-faucSw57o'
+      );
+    </script>
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html> 

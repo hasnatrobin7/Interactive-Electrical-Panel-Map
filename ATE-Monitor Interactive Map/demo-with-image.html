@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATE Monitor Interactive Map - With Real Image</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-microchip"></i> ATE Monitor Interactive Map</h1>
+            <div class="header-controls">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search RFDs, monitor names, or any field...">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+                <button id="addRfdBtn" class="btn-primary">
+                    <i class="fas fa-plus"></i> Add RFD
+                </button>
+                <button id="lockMapBtn" class="btn-secondary">
+                    <i class="fas fa-lock"></i> Lock Map
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Map Container -->
+            <div class="map-container">
+                <div class="map-wrapper">
+                    <!-- Replace this with your actual electrical panel image -->
+                    <img id="electricalPanel" src="your-electrical-panel-image.jpg" alt="Electrical Panel" class="panel-image">
+                    <div id="rfdContainer" class="rfd-overlay"></div>
+                </div>
+                
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <button id="zoomInBtn" class="control-btn"><i class="fas fa-search-plus"></i></button>
+                    <button id="zoomOutBtn" class="control-btn"><i class="fas fa-search-minus"></i></button>
+                    <button id="resetZoomBtn" class="control-btn"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h3>RFD Details</h3>
+                    <button id="closeSidebarBtn" class="close-btn"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="rfdDetails" class="rfd-details">
+                    <p class="no-selection">Select an RFD to view details</p>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Add/Edit RFD Modal -->
+    <div id="rfdModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New RFD</h2>
+                <button id="closeModalBtn" class="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="rfdForm" class="rfd-form">
+                <div class="form-group">
+                    <label for="rfdId">RFD ID *</label>
+                    <input type="text" id="rfdId" name="rfdId" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ateName">ATE Name *</label>
+                    <input type="text" id="ateName" name="ateName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="monitorName">Monitor Name *</label>
+                    <input type="text" id="monitorName" name="monitorName" required>
+                    <small>This will be converted to a hyperlink</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mapId">Map ID *</label>
+                    <input type="text" id="mapId" name="mapId" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="creationDate">Creation Date</label>
+                    <input type="date" id="creationDate" name="creationDate">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tcoStatus">TCO Status</label>
+                    <select id="tcoStatus" name="tcoStatus">
+                        <option value="">Select Status</option>
+                        <option value="Implemented">Implemented</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Not Requested">Not Requested</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comments">Comments</label>
+                    <textarea id="comments" name="comments" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rfdType">RFD Type</label>
+                    <select id="rfdType" name="rfdType">
+                        <option value="rectangular">Rectangular</option>
+                        <option value="circular">Circular</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Save RFD</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results Modal -->
+    <div id="searchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Search Results</h2>
+                <button id="closeSearchModalBtn" class="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="searchResults" class="search-results">
+                <!-- Search results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

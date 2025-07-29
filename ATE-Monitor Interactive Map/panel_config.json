@@ -1,0 +1,39 @@
+{
+  "panels": {
+    "panel1": {
+      "rfds": {},
+      "image": "electrical-panel-real.jpg",
+      "name": "Integration",
+      "runsFile": "runs-integration.csv"
+    },
+    "panel2": {
+      "rfds": {},
+      "image": "inverter-vision-station-1.jpg",
+      "name": "Inverter Vision Station 1",
+      "runsFile": "runs-inverters.csv"
+    },
+    "panel3": {
+      "rfds": {},
+      "image": "inverter-vision-station-2.jpg",
+      "name": "Inverter Vision Station 2",
+      "runsFile": "runs-inverters.csv"
+    },
+    "panel4": {
+      "rfds": {},
+      "image": "inverter-vision-station-3.jpg",
+      "name": "Inverter Vision Station 3",
+      "runsFile": "runs-inverters.csv"
+    },
+    "panel5": {
+      "rfds": {},
+      "image": "inverter-vision-station-4.jpg",
+      "name": "Inverter Vision Station 4",
+      "runsFile": "runs-inverters.csv"
+    },
+    "panel1753077035645": {
+      "rfds": {},
+      "image": "test.jpg",
+      "name": "test"
+    }
+  }
+}
