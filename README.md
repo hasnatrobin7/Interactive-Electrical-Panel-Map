@@ -1,4 +1,4 @@
-# ATE Monitor Interactive Map
+Monitor Interactive Map
 
 A modern, interactive web application for managing RFDs (Rectangular Feature Designations) on electrical panel images. This application replaces Excel-based tracking with a dynamic, visual interface.
 
